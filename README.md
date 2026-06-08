@@ -26,7 +26,7 @@ Open the ALS window in-game (default hotkey **Ctrl+L**, configurable below) to m
 
 - **UI Hotkey** — the keyboard shortcut that opens/closes the ALS window (default `Ctrl+L`).
 - **Scan Folders** — comma-separated folder paths ALS scans for custom livery JSON files
-  (defaults to `Documents/NuclearOption/Liveries`).
+  (defaults to `Documents/NuclearOption/Liveries` but recommended that you pasted the address for workshop folde first).
 - **No Vanilla Skin** — enable/disable the automatic custom-skin enforcement described above.
   Off by default; toggle it from the in-game window or the config file.
 
