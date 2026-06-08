@@ -1,7 +1,7 @@
 # Advanced Livery Selection
 Take full control of which liveries appear, on which faction, and on which aircraft — including custom/workshop skins.
-<img width="2906" height="2905" alt="ALS" src="https://github.com/user-attachments/assets/9fc5d970-778f-4d06-8500-72ee9693db19" />
-
+![1000113012](https://github.com/user-attachments/assets/e05102ba-7d86-412a-aaec-867d2350cb4c)
+Collaborator: @Araphaim
 ## Description
 
 Nuclear Option locks each aircraft's livery list behind softcoded faction assignments and gives you no way to manage your custom/workshop skin collection from in-game. **Advanced Livery Selection (ALS)** rewrites that pipeline: every custom livery gets a faction assignment you control, custom liveries can be hidden from the spawn menu entirely, and an automatic "No Vanilla Skin" mode keeps every spawned unit dressed in your custom collection whenever possible.
