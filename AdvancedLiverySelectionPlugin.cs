@@ -15,7 +15,7 @@ namespace AdvancedLiverySelection
     {
         public const string PluginGuid    = "advance.livery.selection";
         public const string PluginName    = "Advanced Livery Selection";
-        public const string PluginVersion = "1.0.0"; // Public release number 1
+        public const string PluginVersion = "1.1.0"; // Public release number 2
 
         public static ConfigEntry<KeyboardShortcut> UIVisibilityHotkey;
         public static ConfigEntry<string>           ScanFolders;

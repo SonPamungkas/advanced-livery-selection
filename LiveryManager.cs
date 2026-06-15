@@ -90,7 +90,7 @@ namespace AdvancedLiverySelection
 
             new AircraftIdentity { GoName = "Aryx_F16M_KingViper",   UnitName = "F-16M King Viper", Aliases = new[] { "Aryx_F16M_KingViper_AircraftDefinition" } },
             new AircraftIdentity { GoName = "Aryx_LightHelicopter1", UnitName = "RAH-72 Knockout",  Aliases = new[] { "Aryx_LightHelicopter1_Definition" } },
-            new AircraftIdentity { GoName = "Aryx_LighFighter1",     UnitName = "F-99 Shrike",      Aliases = new[] { "Aryx_LighFighter1_Definition" } },
+            new AircraftIdentity { GoName = "Aryx_LightFighter1",    UnitName = "F-99 Shrike",      Aliases = new[] { "Aryx_LightFighter1_Definition" } },
             new AircraftIdentity { GoName = "Aryx_MiG-15",           UnitName = "MiG-15",           Aliases = new[] { "Aryx_MiG-15_AircraftDefinition" } },
             new AircraftIdentity { GoName = "P_Trisurface1",         UnitName = "FS-3 Ternion",    Aliases = new[] { "P_Trisurface1_definition", "FS-3 Ternion", "FS-3E" } },
             new AircraftIdentity { GoName = "Aryx_MC260_Chimera",    UnitName = "MC-260 Chimera",   Aliases = new[] { "Aryx_MC260_Chimera_Definition" } },

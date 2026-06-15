@@ -15,6 +15,9 @@ namespace AdvancedLiverySelection
         private const float NoVanillaSkinPollInterval = 2.5f;
         private float _noVanillaSkinTimer = 0f;
 
+        private enum LiverySortMode { Name, Faction, Visibility }
+        private LiverySortMode _currentSortMode = LiverySortMode.Name;
+
         private void Update()
         {
             if (AdvancedLiverySelectionPlugin.UIVisibilityHotkey.Value.IsDown())
@@ -73,6 +76,14 @@ namespace AdvancedLiverySelection
                             "Custom/workshop liveries are edited directly in their real meta.json — " +
                             "changes apply natively, exactly like editing the file by hand.", GUI.skin.label);
 
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Sort by:", GUILayout.Width(60));
+            if (GUILayout.Toggle(_currentSortMode == LiverySortMode.Name, "Name", GUI.skin.button)) _currentSortMode = LiverySortMode.Name;
+            if (GUILayout.Toggle(_currentSortMode == LiverySortMode.Faction, "Faction", GUI.skin.button)) _currentSortMode = LiverySortMode.Faction;
+            if (GUILayout.Toggle(_currentSortMode == LiverySortMode.Visibility, "Visibility", GUI.skin.button)) _currentSortMode = LiverySortMode.Visibility;
+            GUILayout.EndHorizontal();
+            GUILayout.Space(5);
+
             _scrollPos = GUILayout.BeginScrollView(_scrollPos);
 
             var groups = LiveryManager.LoadedLiveries
@@ -83,7 +94,15 @@ namespace AdvancedLiverySelection
             {
                 GUILayout.Label($"— {group.Key} —", GUI.skin.box);
 
-                foreach (var entry in group.OrderBy(e => e.Meta.DisplayName))
+                var sortedGroup = group.AsEnumerable();
+                if (_currentSortMode == LiverySortMode.Faction)
+                    sortedGroup = group.OrderBy(e => string.IsNullOrEmpty(e.Meta.Faction) ? "ZZZ" : e.Meta.Faction).ThenBy(e => e.Meta.DisplayName);
+                else if (_currentSortMode == LiverySortMode.Visibility)
+                    sortedGroup = group.OrderBy(e => LiveryManager.IsLiveryHidden(e) ? 1 : 0).ThenBy(e => e.Meta.DisplayName);
+                else
+                    sortedGroup = group.OrderBy(e => e.Meta.DisplayName);
+
+                foreach (var entry in sortedGroup)
                 {
                     LiveryMetadata livery = entry.Meta;
                     GUILayout.BeginHorizontal("box");
