@@ -449,26 +449,33 @@ namespace AdvancedLiverySelection
                 var options = new List<(LiveryKey key, string label)>();
                 foreach (Aircraft aircraft in Resources.FindObjectsOfTypeAll<Aircraft>())
                 {
-                    if (aircraft == null || aircraft.definition == null) continue;
-                    if (!aircraft.gameObject.scene.IsValid()) continue; // skip prefabs/encyclopedia ghosts
-
-                    options.Clear();
-                    try { LoadoutSelector.GetLiveryOptions(options, aircraft.definition, "", true); }
-                    catch { continue; }
-
-                    bool isVanilla = aircraft.NetworkLiveryKey.Type == LiveryKey.KeyType.Builtin;
-                    var customs = options.Where(o => o.key.Type != LiveryKey.KeyType.Builtin).ToList();
-
-                    if (isVanilla && customs.Count > 0)
+                    try
                     {
-                        var pick = customs[UnityEngine.Random.Range(0, customs.Count)];
-                        aircraft.SetLiveryKey(pick.key, loadIfUnspawned: true);
+                        if (aircraft == null || aircraft.definition == null) continue;
+                        if (!aircraft.gameObject.scene.IsValid()) continue; // skip prefabs/encyclopedia ghosts
+
+                        options.Clear();
+                        try { LoadoutSelector.GetLiveryOptions(options, aircraft.definition, null, true); }
+                        catch { continue; }
+
+                        bool isVanilla = aircraft.NetworkLiveryKey.Type == LiveryKey.KeyType.Builtin;
+                        var customs = options.Where(o => o.key.Type != LiveryKey.KeyType.Builtin).ToList();
+
+                        if (isVanilla && customs.Count > 0)
+                        {
+                            var pick = customs[UnityEngine.Random.Range(0, customs.Count)];
+                            aircraft.SetLiveryKey(pick.key, loadIfUnspawned: true);
+                        }
+                        else if (!isVanilla && customs.Count == 0)
+                        {
+                            var builtins = options.Where(o => o.key.Type == LiveryKey.KeyType.Builtin).ToList();
+                            if (builtins.Count > 0)
+                                aircraft.SetLiveryKey(builtins[UnityEngine.Random.Range(0, builtins.Count)].key, loadIfUnspawned: true);
+                        }
                     }
-                    else if (!isVanilla && customs.Count == 0)
+                    catch (Exception ex)
                     {
-                        var builtins = options.Where(o => o.key.Type == LiveryKey.KeyType.Builtin).ToList();
-                        if (builtins.Count > 0)
-                            aircraft.SetLiveryKey(builtins[UnityEngine.Random.Range(0, builtins.Count)].key, loadIfUnspawned: true);
+                        AdvancedLiverySelectionPlugin.Logger.LogError($"EnforceNoVanillaSkin aircraft error: {ex}");
                     }
                 }
             }
