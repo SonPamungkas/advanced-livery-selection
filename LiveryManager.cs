@@ -461,9 +461,51 @@ namespace AdvancedLiverySelection
                         bool isVanilla = aircraft.NetworkLiveryKey.Type == LiveryKey.KeyType.Builtin;
                         var customs = options.Where(o => o.key.Type != LiveryKey.KeyType.Builtin).ToList();
 
-                        if (isVanilla && customs.Count > 0)
+                        bool needsPalaBdfFix = false;
+                        if (!isVanilla)
                         {
-                            var pick = customs[UnityEngine.Random.Range(0, customs.Count)];
+                            string currentLabel = null;
+                            foreach (var opt in customs)
+                            {
+                                if (opt.key.Equals(aircraft.NetworkLiveryKey))
+                                {
+                                    currentLabel = opt.label;
+                                    break;
+                                }
+                            }
+                            
+                            if (!string.IsNullOrEmpty(currentLabel))
+                            {
+                                string upperLabel = currentLabel.ToUpper();
+                                bool hasPalaOrBdf = upperLabel.Contains("PALA") || upperLabel.Contains("BDF");
+                                if (hasPalaOrBdf)
+                                {
+                                    string currentFaction = GetLiveryFaction(aircraft.definition.unitName, currentLabel);
+                                    if (string.IsNullOrEmpty(currentFaction))
+                                    {
+                                        needsPalaBdfFix = true;
+                                    }
+                                }
+                            }
+                        }
+
+                        if ((isVanilla || needsPalaBdfFix) && customs.Count > 0)
+                        {
+                            var candidate1 = customs.Where(o => 
+                            {
+                                string fac = GetLiveryFaction(aircraft.definition.unitName, o.label);
+                                return fac == "Boscali" || fac == "Primeva";
+                            }).ToList();
+                            
+                            var candidate2 = customs.Where(o => 
+                            {
+                                string fac = GetLiveryFaction(aircraft.definition.unitName, o.label);
+                                string upperLabel = o.label.ToUpper();
+                                return string.IsNullOrEmpty(fac) && !upperLabel.Contains("PALA") && !upperLabel.Contains("BDF");
+                            }).ToList();
+                            
+                            var pickList = candidate1.Count > 0 ? candidate1 : (candidate2.Count > 0 ? candidate2 : customs);
+                            var pick = pickList[UnityEngine.Random.Range(0, pickList.Count)];
                             aircraft.SetLiveryKey(pick.key, loadIfUnspawned: true);
                         }
                         else if (!isVanilla && customs.Count == 0)
