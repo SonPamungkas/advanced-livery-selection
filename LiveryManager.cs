@@ -14,7 +14,6 @@ namespace AdvancedLiverySelection
         public static List<string> KnownFactions = new List<string> { "Boscali", "Primeva" };
 
         // Shadow faction-override store for built-ins (no on-disk meta.json exists for them).
-        // See documentation.md → "Architecture: native vs. shadow storage".
         private static Dictionary<string, string> LiveryFactionOverrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<string, string> BuiltinConfigPaths = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
@@ -64,7 +63,6 @@ namespace AdvancedLiverySelection
             StripHiddenSuffix(unitName) + "::" + displayName;
 
         // Resolves GoName/UnitName/Aliases for each aircraft. See documentation.md →
-        // "Architecture: native vs. shadow storage" → "Aircraft identity catalog".
         private class AircraftIdentity
         {
             public string GoName;
@@ -331,8 +329,6 @@ namespace AdvancedLiverySelection
             AdvancedLiverySelectionPlugin.Logger.LogInfo($"Discovered new built-in livery: '{displayName}' on {unitName}");
         }
 
-        // Scanning
-
         // Discovers custom/workshop liveries straight from the game's own mod-folder index
         public static void ScanCustomLiveries()
         {
@@ -506,13 +502,13 @@ namespace AdvancedLiverySelection
                             
                             var pickList = candidate1.Count > 0 ? candidate1 : (candidate2.Count > 0 ? candidate2 : customs);
                             var pick = pickList[UnityEngine.Random.Range(0, pickList.Count)];
-                            aircraft.SetLiveryKey(pick.key, loadIfUnspawned: true);
+                            ApplyLiverySafe(aircraft, pick.key);
                         }
                         else if (!isVanilla && customs.Count == 0)
                         {
                             var builtins = options.Where(o => o.key.Type == LiveryKey.KeyType.Builtin).ToList();
                             if (builtins.Count > 0)
-                                aircraft.SetLiveryKey(builtins[UnityEngine.Random.Range(0, builtins.Count)].key, loadIfUnspawned: true);
+                                ApplyLiverySafe(aircraft, builtins[UnityEngine.Random.Range(0, builtins.Count)].key);
                         }
                     }
                     catch (Exception ex)
@@ -524,6 +520,39 @@ namespace AdvancedLiverySelection
             catch (Exception ex)
             {
                 AdvancedLiverySelectionPlugin.Logger.LogError($"EnforceNoVanillaSkin error: {ex}");
+            }
+        }
+
+        private static void ApplyLiverySafe(Aircraft aircraft, LiveryKey targetLiveryKey)
+        {
+            try
+            {
+                var setMethod = aircraft.GetType().GetMethod("SetLiveryKey",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic,
+                    null,
+                    new Type[] { targetLiveryKey.GetType(), typeof(bool) },
+                    null) ??
+                    aircraft.GetType().GetMethod("SetLiveryKey",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic,
+                    null,
+                    new Type[] { targetLiveryKey.GetType() },
+                    null);
+
+                if (setMethod != null)
+                {
+                    if (setMethod.GetParameters().Length == 2)
+                        setMethod.Invoke(aircraft, new object[] { targetLiveryKey, false });
+                    else
+                        setMethod.Invoke(aircraft, new object[] { targetLiveryKey });
+                }
+                else
+                {
+                    aircraft.SetLiveryKey(targetLiveryKey, loadIfUnspawned: false);
+                }
+            }
+            catch
+            {
+                aircraft.SetLiveryKey(targetLiveryKey, loadIfUnspawned: false);
             }
         }
     }
